@@ -16,7 +16,7 @@ supabase: Client = create_client(db_url, db_key)
 # get all products
 def dataGetProducts():
     response = (supabase.table("product")
-                .select("*")
+                .select("*, category(name)")
                 .order("title", desc=False)
                 .execute()
     )
@@ -25,11 +25,11 @@ def dataGetProducts():
 
 # get product by id
 def dataGetProduct(id):
-    # select * from product where id = id 
     response = (
         supabase.table("product")
-        .select("*")
+        .select("*, category(name)")  # new category name
         .eq("id", id)
+        .order("title", desc=False)
         .execute()
     )
     return response.data[0]
@@ -40,7 +40,8 @@ def dataUpdateProduct(product: Product) :
     #response = supabase.table("product").upsert({"id": product.id, "category_id": product.category_id, "title": product.title, "thumbnail": product.thumbnail, "stock": product.stock, "price": product.price}).execute()
     response = (
         supabase.table("product")
-        .upsert(product.dict()) # convert product object to dict - required by Supabase
+        .upsert(product.model_dump()) # convert product object to dict - required by Supabase
+        .select("*, category(name)") # new
         .execute()
     )
     # result is 1st item in the list
@@ -50,11 +51,13 @@ def dataUpdateProduct(product: Product) :
 def dataAddProduct(product: Product) :
     response = (
         supabase.table("product")
-        .insert(product.dict()) # convert product object to dict - required by Supabase
+        .insert(product.model_dump()) # convert product object to dict - required by Supabase
         .execute()
     )
+    if (response.data) :
+        return dataGetProduct(response.data[0]['id'])
     # result is 1st item in the list
-    return response.data[0]
+    return False
 
 # get all categories
 def dataGetCategories():

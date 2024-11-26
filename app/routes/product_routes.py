@@ -16,14 +16,21 @@ templates = Jinja2Templates(directory="app/view_templates")
 
 # handle http get requests for the site root /
 # return the todos page
+# @router.get("/", response_class=HTMLResponse)
+# async def getProducts(request: Request):
+
+#     products = getAllProducts()
+#     categories = getAllCategories()
+
+#     # note passing of parameters to the page
+#     return templates.TemplateResponse("product/products.html", {"request": request, "products": products, "categories": categories })
 @router.get("/", response_class=HTMLResponse)
 async def getProducts(request: Request):
-
     products = getAllProducts()
     categories = getAllCategories()
 
-    # note passing of parameters to the page
-    return templates.TemplateResponse("product/products.html", {"request": request, "products": products, "categories": categories })
+    # Pass categories to the template
+    return templates.TemplateResponse("product/products.html", {"request": request, "products": products, "categories": categories})
 
 @router.get("/update/{id}", response_class=HTMLResponse)
 async def getProfuctUpdateForm(request: Request, id: int):
